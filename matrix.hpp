@@ -52,7 +52,7 @@ void matrixMultiplyNaive (double *S, double *A, double *B, uint64_t p, uint64_t 
  * @param B : the matrix of size n x n.
  * @param n : the length of the matrix.
  */
-void matrixMultiplyStrassen (double *S, double *A, double *B, uint64_t n);
+double * matrixMultiplyStrassen (double *S, double *A, double *B, uint64_t n);
 
 /**
  * @role Solves a system of linear equations Ax=b for a double-precision matrix A (size n x n).
