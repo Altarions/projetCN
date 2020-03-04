@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <iostream>
 #include <cstdlib>
-#include "matrix.hpp"
+#include "matrix.h"
 
 using namespace std;
 
@@ -485,25 +485,61 @@ void SolveTriangularSystemUP (double *x, double *A, double *b, uint64_t n) {
  * @param n : the length of the matrix A.
 **/
 bool Triangularize (double *A, double *b, uint64_t n) {
-    
     diagZero(A,n);
-    for(int cl = 0; cl<n-1; cl++){// colonnes
-        for(int lgn = cl+1; lgn<n; lgn++){// lignes
-            //if the coef is not null
-            if(A[lgn*n+cl] != 0){
-                //determine the coef x (exp L2 = L2 - xL1)
-                int x= A[lgn*n+cl]/A[cl*n+cl];
-                //performs the calculation (L2 = L2-xL1) by applying x to each cell of the line
-                for(int w=0;w<n;w++){
-                    A[lgn*n+w]=A[lgn*n+w] - x*A[cl*n+w];
+
+    for (int cl = 0; cl < n - 1; cl++) {
+        for (int lgn = cl + 1; lgn < n; lgn++) {
+            // if the coef is not null
+            if (A[lgn * n + cl] != 0) {
+                // determine the coef x (exp L2 = L2 - xL1)
+                int x = A[lgn * n + cl] / A[cl * n + cl];
+                // performs the calculation (L2 = L2-xL1) by applying x to each cell of the line
+                for (int w = cl; w < n; w++) {
+
+                    A[lgn * n + w] = A[lgn * n + w] - x * A[cl * n + w];
                 }
-                b[lgn] -= x*b[cl];
+                b[lgn] -= x * b[cl];
             }
         }
     }
+
     diagZero(A,n);
+
     return true;
 }
+
+/**
+ * @role : Allows the decomposition of LU inside the starting matrix A. L and U are stored in it.
+ * @param A : the started matrix of size (n x n).
+ * @param n : the length of the A matrix.
+ * @return true if the decomposition of LU is good, and false if not.
+ */
+bool decompLU(double *A, uint64_t n) {
+    diagZero(A,n);
+
+    for (int cl = 0; cl < n - 1; cl++) {
+        for (int lgn = cl + 1; lgn < n; lgn++) {
+            // if the coef is not null
+            if (A[lgn * n + cl] != 0) {
+                // determine the coef x (exp L2 = L2 - xL1)
+                int x = A[lgn * n + cl] / A[cl * n + cl];
+                // performs the calculation (L2 = L2-xL1) by applying x to each cell of the line
+
+                for (int w = cl; w < n; w++) {
+                    A[lgn * n + w ] = A[lgn * n + w] - x * A[cl * n + w];
+                }
+
+                A[lgn * n + cl] = x;
+            }
+
+        }
+    }
+
+    diagZero(A,n);
+
+    return true;
+}
+
 /**
  * Look that there is no 0 on the diagonal.
  * @param A : the matrix A.
@@ -528,6 +564,7 @@ bool diagZero(double *A, uint64_t n){
         *  true in case of success and
         *  false in case of failure, for example matrix is of rank <n .
 */
+
 bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n) {
 
    if (Triangularize(A, b, n)) {
@@ -536,21 +573,4 @@ bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n) {
    }
 
    return false;
-}
-
-double * fusionLU (double *L, double *U, uint64_t n){
-    double *fus = allocateMatrix(n,n);
-    for(int cl = 0; cl<n; cl++){
-        for(int lgn = 0; lgn<n; lgn++){
-            if(((lgn*n+cl)%(n+1)) == 0){
-                fus[lgn*n+cl] = U[lgn*n+cl];
-            }else{
-                
-                fus[lgn*n+cl] = L[lgn*n + cl] + U[lgn*n + cl];
-            }
-            cout << "case" << lgn*n+cl << endl;
-            matrixAff(fus,n,n);
-        }
-    }
-    return fus;
 }
