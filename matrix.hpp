@@ -1,7 +1,11 @@
+#ifndef TP3_MATRIX_H
+#define TP3_MATRIX_H
+
 #include <cmath>
 #include <climits>
 #include <cstdlib>
 #include <cstdio>
+#include <cstdint>
 
 double*     allocateMatrix      (uint64_t n,uint64_t m) ;
 double*     allocateVector      (uint64_t n) ;
@@ -9,13 +13,20 @@ void        freeMatrix          (double *A);
 void        freeVector          (double *v);
 void        setMatrixZero       (double *A, uint64_t n, uint64_t m);
 void        setMatrixIdentity   (double *A, uint64_t n);
-void        copyMatrix          (double *B, double *A, uint64_t n, uint64_t m) ;
+void        copyMatrix          (double *B, double *A, uint64_t n, uint64_t m, uint64_t k, uint64_t p);
 void        writeMatrix         (FILE *stream, double *A, uint64_t n, uint64_t m);
 void        absMatrix           (double *Aabs,double *A, uint64_t n, uint64_t m);
 double      getMaxInMatrix      (double max, double *A, uint64_t n, uint64_t m);
-void        matrixSub           (double *S, double *A, double *B, uint64_t n, uint64_t m);
+void        matrixSub           (double *S, const double *A, const double *B, uint64_t n, uint64_t m);
 void        matrixAdd           (double *S, const double *A, const double *B, uint64_t n, uint64_t m);
+bool        diagZero            (double *A, uint64_t n);
 
+/**
+ * @role : displays a matrix in the form of an array n x n.
+ * @param M : the matrix (table).
+ * @param n : the length of the matrix (n x n).
+ */
+void matrixAff(double *M, uint64_t n, uint64_t m);
 
 /**
  * @role create a matrix with random values ranging from -127 to +127, of size size x size.
@@ -25,11 +36,34 @@ void        matrixAdd           (double *S, const double *A, const double *B, ui
 double * matrixGenerate(uint64_t size);
 
 /**
- * @role : displays a matrix in the form of an array n x n.
- * @param M : the matrix (table).
- * @param n : the length of the matrix (n x n).
+ * @role : look if the two matrix are equals or not.
+ * @param A : the 1st matrix, of size (n x m).
+ * @param B : the 2st matrix, of size (n x m).
+ * @param n : the length of the matrix.
+ * @param m : the width of the matrix.
+ * @return
  */
-void matrixAff(double *M, uint64_t n);
+bool equals(double *A, double *B, int n, int m);
+
+/**
+ * @role : create a matrix which will be size will be a square of 2. It consists of the
+ *         initial matrix A and it is composed of as many rows and columns of 0 as possible
+ *         to access the nearest square of 2.
+ *         Example: A of size 5 will at the output of size 8 and the added columns and rows (6, 7, 8) will be 0.
+ * @param A : the matrix initial, of size (size x size).
+ * @param size : the size of the matrix.
+ * @return a matrix which will be size will be the nearest square of 2.
+ */
+double * preTreatment(double *A, uint64_t size);
+
+/**
+ * @role : remove the lines of 0 added during Strassen.
+ * @param A : the matrix initial, of size (sizeUp x sizeUp).
+ * @param S : the final matrix, of size (size x size).
+ * @param size : the length of the S matrix.
+ * @param sizeUp :  the length of the A matrix.
+ */
+double * postTreatment(double *S, const double *A, uint64_t size, uint64_t sizeUp);
 
 /**
  * @role Performs naive multiplication of matrix A (size p x k) by a matrix B (size k x r).
@@ -44,15 +78,26 @@ void matrixAff(double *M, uint64_t n);
  */
 void matrixMultiplyNaive (double *S, double *A, double *B, uint64_t p, uint64_t k, uint64_t r);
 
+
+/**
+ * @role multiply Strassen and remove the 0 if there are rows / columns added.
+ * @param S : the final matrix, S = A * B.
+ * @param A : the matrix of size n x n.
+ * @param B : the matrix of size n x n.
+ * @param size : the length of the matrix.
+ */
+double * matrixMultiplyStrassen (double *S, double *A, double *B, uint64_t size);
+
 /**
  * @role Performs a multiplication of two square matrices A and B (size n x n) by Strassen algorithm.
          We assume that S has already been allocated outside the function.
  * @param S : the final matrix, S = A * B.
  * @param A : the matrix of size n x n.
  * @param B : the matrix of size n x n.
- * @param n : the length of the matrix.
+ * @param size : the length of the matrix.
+ * @param sizeUp : the newSze of the matrix after preTreatment.
  */
-double * matrixMultiplyStrassen (double *S, double *A, double *B, uint64_t n);
+void matrixMultiplyStrassen_rec (double *S, double *A, double *B, uint64_t size, uint64_t &sizeUp);
 
 /**
  * @role Solves a system of linear equations Ax=b for a double-precision matrix A (size n x n).
@@ -66,13 +111,13 @@ double * matrixMultiplyStrassen (double *S, double *A, double *B, uint64_t n);
  */
 void SolveTriangularSystemUP (double *x, double *A, double *b, uint64_t n);
 
-/* 
+/*
     Performs Gauss elimination for given a matrix A (size n x n) and a vector b (size n).
     Modifies directly matrix A and vector b.
     In the end of the procedure, A is upper truangular and b is modified accordingly.
-    Returns a boolean variable: 
-        *  true in case of success and 
-        *  false in case of failure, for example matrix is impossible to triangularize. 
+    Returns a boolean variable:
+        *  true in case of success and
+        *  false in case of failure, for example matrix is impossible to triangularize.
 */
 bool Triangularize (double *A, double *b, uint64_t n);
 
@@ -81,9 +126,12 @@ bool Triangularize (double *A, double *b, uint64_t n);
     Uses Gauss elimination algorithm based on truangularization and the ascension solving.
     After the procedure, vector x contains the solution to Ax=b.
     We assume that x has been allocated outside the function.
-        Returns a boolean variable: 
-        *  true in case of success and 
+        Returns a boolean variable:
+        *  true in case of success and
         *  false in case of failure, for example matrix is of rank <n .
 */
 bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n);
-bool TriangularizeLU (double *A, double *L, double *U, uint64_t n);
+
+double * fusionLU(double *L, double *U, uint64_t n);
+
+#endif 

@@ -539,10 +539,18 @@ bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n) {
 }
 
 double * fusionLU (double *L, double *U, uint64_t n){
-    double *fus=allocateMatrix(n,n);
-    for(int cl = 0; cl<n-1; cl++){
-        for(int lgn = cl+1; lgn<n; lgn++){
-            
+    double *fus = allocateMatrix(n,n);
+    for(int cl = 0; cl<n; cl++){
+        for(int lgn = 0; lgn<n; lgn++){
+            if(((lgn*n+cl)%(n+1)) == 0){
+                fus[lgn*n+cl] = U[lgn*n+cl];
+            }else{
+                
+                fus[lgn*n+cl] = L[lgn*n + cl] + U[lgn*n + cl];
+            }
+            cout << "case" << lgn*n+cl << endl;
+            matrixAff(fus,n,n);
         }
     }
+    return fus;
 }
