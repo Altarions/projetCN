@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include "matrix.hpp"
 
 using namespace std;
@@ -81,17 +81,18 @@ void setMatrixIdentity (double *A, uint64_t n) {
 
 /**
  * @role copies a matrix.
- * @param B : the matrix of size n x n.
- * @param A : the matrix copied of size m x m.
+ * @param A : the matrix copied of size n x m.
+ * @param B : the matrix of size k x p.
  * @param n : the length of the matrix.
  * @param m : the width of the matrix.
  */
-void copyMatrix (double *B, const double *A, uint64_t n, uint64_t m) {
-    uint64_t i,j;
-
-    for (i = 0; i < n ; i++) {
-        for (j = 0; j < n; j++) {
-            B[i * m + j] = A[i * n + j];
+void copyMatrix(double *A, double *B, uint64_t n, uint64_t m, uint64_t k, uint64_t p) {
+    // if the matrix A is the same or smaller than the matrix where it will be copied.
+    if ((k * p) >= (n * m)) {
+        for (uint64_t i = 0; i < n; i++) {
+            for (uint64_t j = 0; j < m; j++) {
+                B[i * p + j] = A[i * m + j];
+            }
         }
     }
 }
@@ -166,10 +167,8 @@ void matrixAdd(double *S, const double *A, const double *B, uint64_t n, uint64_t
  */
 void matrixSub(double *S, double *A, double *B, uint64_t n, uint64_t m){
     uint64_t i,j;
-	for(i = 0; i < n; ++i)
-	{
-		for(j = 0; j < m; ++j)
-		{
+	for (i = 0; i < n; ++i) {
+		for (j = 0; j < m; ++j) {
             S[i*m + j] = A[i*m + j] - B[i*m + j];
 		}
 	}
@@ -202,16 +201,16 @@ double getMaxInMatrix(double max, double *A, uint64_t n, uint64_t m) {
  * @role : displays a matrix in the form of an array n x n.
  * @param M : the matrix (table).
  * @param n : the length of the matrix (n x n).
+ * @param name : the name of the matrix.
  */
-void matrixAff(double *M, uint64_t n) {
-    cout << "\nLa matrice est de taille " << n << " et de forme :" << endl;
-
+void matrixAff(double *M, uint64_t n, uint64_t m) {
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            cout << M[i * n + j] << "\t";
+        for (int j = 0; j < m; j++) {
+            cout << M[i * m + j] << "\t";
         }
-        cout << "\n";
+        printf("\n");
     }
+    printf("\n");
 }
 
 /**
@@ -221,17 +220,67 @@ void matrixAff(double *M, uint64_t n) {
  */
 double * matrixGenerate(uint64_t size) {
     double *A = allocateMatrix(size, size);
-    double randomNumber = 0;
 
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             A[i * size + j] = rand() % (127 - (-127) + 1) - 127;
         }
     }
-    // matrixAff(A, size); affichage de la nouvelle matrice.
     return A;
 }
 
+bool equals(double *A, double *B, int n, int m) {
+    for (int i = 0; i < n-1; i++) {
+        for (int j = 0; j < m-1; j++) {
+            if (A[i * n + j] != B[i * n + j]) return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @role : create a matrix which will be size will be a square of 2. It consists of the
+ *         initial matrix A and it is composed of as many rows and columns of 0 as possible
+ *         to access the nearest square of 2.
+ *         Example: A of size 5 will at the output of size 8 and the added columns and rows (6, 7, 8) will be 0.
+ * @param A : the matrix initial, of size (size x size).
+ * @param size : the size of the matrix.
+ * @return a matrix which will be size will be the nearest square of 2.
+ */
+double * preTreatment(double *A, uint64_t size) {
+    double *S; // the new matrix with zero if the length it's not a square of 2.
+    uint64_t newSize = size;
+
+    while (log2(newSize) != floor(log2(newSize))) { newSize++; }
+
+    // creation of the matrix matrix with only zero.
+    S = allocateMatrix(newSize, newSize);
+    setMatrixZero(S, newSize, newSize);
+    // we copy the matrix A in S;
+    copyMatrix(A, S, size, size, newSize, newSize);
+
+    return S;
+}
+
+/**
+ * @role : remove the lines of 0 added during Strassen.
+ * @param A : the matrix initial, of size (sizeUp x sizeUp).
+ * @param S : the final matrix, of size (size x size).
+ * @param size : the length of the S matrix.
+ * @param sizeUp :  the length of the A matrix.
+ */
+double * postTreatment(const double *A, uint64_t size, uint64_t sizeUp) {
+    double *S = allocateMatrix(size, size);
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            S[i * size + j] = A[i * sizeUp + j];
+        }
+    }
+
+    return S;
+}
 
 /**
  * @role Performs naive multiplication of matrix A (size p x k) by a matrix B (size k x r).
@@ -245,6 +294,8 @@ double * matrixGenerate(uint64_t size) {
  * @param r : the width of the B matrix.
  */
 void matrixMultiplyNaive (double *S, double *A, double *B, uint64_t p, uint64_t k, uint64_t r){
+    if (p == k == r == 1) { S[0] = A[0] * B[0]; return; }
+
     for(int i=0; i<k;i++){
         for(int j=0; j<r; j++){
             S[i*p+j]=0;
@@ -256,63 +307,215 @@ void matrixMultiplyNaive (double *S, double *A, double *B, uint64_t p, uint64_t 
 }
 
 /**
+ * @role multiply Strassen and remove the 0 if there are rows / columns added.
+ * @param S : the final matrix, S = A * B.
+ * @param A : the matrix of size n x n.
+ * @param B : the matrix of size n x n.
+ * @param size : the length of the matrix.
+ */
+double * matrixMultiplyStrassen (double *S, double *A, double *B, uint64_t size) {
+    uint64_t sizeUp = size;
+
+    matrixMultiplyStrassen_rec(S, A, B, size, sizeUp);
+    return postTreatment(S, size, sizeUp);
+}
+
+/**
  * @role Performs a multiplication of two square matrices A and B (size n x n) by Strassen algorithm.
          We assume that S has already been allocated outside the function.
  * @param S : the final matrix, S = A * B.
  * @param A : the matrix of size n x n.
  * @param B : the matrix of size n x n.
- * @param n : the length of the matrix.
+ * @param size : the length of the matrix.
+ * @param sizeUp : the newSze of the matrix after preTreatment.
  */
-void matrixMultiplyStrassen (double *S, double *A, double *B, uint64_t n) {
+void matrixMultiplyStrassen_rec (double *S, double *A, double *B, uint64_t size, uint64_t &sizeUp) {
 
-    /* Votre code ici */
+    if (size == 1) { matrixMultiplyNaive(S, A, B, size, size, size); return; }
+
+    //addition of row(s) and column(s) of 0 and change the size, to access the nearest square of 2.
+    if (log2(size) != floor(log2(size))) {
+        A = preTreatment(A, size);
+        B = preTreatment(B, size);
+
+        while (log2(sizeUp) != floor(log2(sizeUp))) { sizeUp++; }
+    }
+
+    // if the initial matrix are of size 2, or when the sub-matrix (block) are of size 2.
+    if (size == 2) {
+        double M1, M2, M3, M4, M5, M6, M7;
+
+        M1 = (A[0] + A[3]) * (B[0] + B[3]);
+        M2 = (A[2] + A[3]) * B[0];
+        M3 = A[0] * (B[1] - B[3]);
+        M4 = A[3] * (B[2] - B[0]);
+        M5 = (A[0] + A[1]) * B[3];
+        M6 = (A[2] - A[0]) * (B[0] + B[1]);
+        M7 = (A[1] - A[3]) * (B[2] + B[3]);
+
+        S[0] = M1 + M4 - M5 + M7;
+        S[1] = M3 + M5;
+        S[2] = M2 + M4;
+        S[3] = M1 - M2 + M3 + M6;
+
+        return;
+    }
+    else {
+        uint64_t newSize = sizeUp / 2;
+
+        double *A11     = allocateMatrix(newSize, newSize), *A12 = allocateMatrix(newSize, newSize), *A21 = allocateMatrix(newSize, newSize), *A22     = allocateMatrix(newSize, newSize),
+               *B11     = allocateMatrix(newSize, newSize), *B12 = allocateMatrix(newSize, newSize), *B21 = allocateMatrix(newSize, newSize), *B22     = allocateMatrix(newSize, newSize),
+               *M1      = allocateMatrix(newSize, newSize),  *M2 = allocateMatrix(newSize, newSize),  *M3 = allocateMatrix(newSize, newSize),  *M4     = allocateMatrix(newSize, newSize),
+               *M5      = allocateMatrix(newSize, newSize),  *M6 = allocateMatrix(newSize, newSize),  *M7 = allocateMatrix(newSize, newSize),  *C11    = allocateMatrix(newSize, newSize),
+               *C12     = allocateMatrix(newSize, newSize), *C21 = allocateMatrix(newSize, newSize), *C22 = allocateMatrix(newSize, newSize), *result1 = allocateMatrix(newSize, newSize),
+               *result2 = allocateMatrix(newSize, newSize);
+
+        //---------------------- Partition into 4 sub-matrix ------------------------//
+
+        for (int i = 0; i < newSize ; i++) {
+            for (int j = 0; j < newSize; j++) {
+                A11[i * newSize + j] = A[i * sizeUp + j];
+                A12[i * newSize + j] = A[i * sizeUp + newSize + j];
+                A21[i * newSize + j] = A[i * sizeUp + newSize * sizeUp + j];
+                A22[i * newSize + j] = A[i * sizeUp + newSize * sizeUp + newSize + j];
+
+                B11[i * newSize + j] = B[i * sizeUp + j];
+                B12[i * newSize + j] = B[i * sizeUp + newSize + j];
+                B21[i * newSize + j] = B[i * sizeUp + newSize * sizeUp + j];
+                B22[i * newSize + j] = B[i * sizeUp + newSize * sizeUp + newSize + j];
+            }
+        }
+
+        //---------------------- Creation of the sub-matrix of A and B with Strassen operation ------------------------//
+
+        // M1 = (A[0] + A[3]) * (B[0] + B[3]);
+        matrixAdd(result1, A11, A22, newSize, newSize);
+        matrixAdd(result2, B11, B22, newSize, newSize);
+        matrixMultiplyStrassen(M1, result1, result2, newSize);
+
+        // M2 = (A[2] + A[3]) * B[0];
+        matrixAdd(result1, A21, A22, newSize, newSize);
+        matrixMultiplyStrassen(M2, result1, B11, newSize);
+
+        // M3 = A[0] * (B[1] - B[3]);
+        matrixSub(result1, B12, B22, newSize, newSize);
+        matrixMultiplyStrassen(M3, A11, result1, newSize);
+
+        // M4 = A[3] * (B[2] - B[0]);
+        matrixSub(result1, B21, B11, newSize, newSize);
+        matrixMultiplyStrassen(M4, A22, result1, newSize);
+
+        // M5 = (A[0] + A[1]) * B[3];
+        matrixAdd(result1, A11, A12, newSize, newSize);
+        matrixMultiplyStrassen(M5, result1, B22, newSize);
+
+        // M6 = (A[2] - A[0]) * (B[0] + B[1]);
+        matrixSub(result1, A21, A11, newSize, newSize);
+        matrixAdd(result2, B11, B12, newSize, newSize);
+        matrixMultiplyStrassen(M6, result1, result2, newSize);
+
+        // M7 = (A[1] - A[3]) * (B[2] + B[3]);
+        matrixSub(result1, A12, A22, newSize, newSize);
+        matrixAdd(result2, B21, B22, newSize, newSize);
+        matrixMultiplyStrassen(M7, result1, result2, newSize);
+
+
+        //---------------------- Addition of its operations in a matrix C ------------------------//
+
+        // C11 = M1 + M4 - M5 + M7
+        matrixAdd(result1, M1, M4, newSize, newSize);
+        matrixAdd(result2, result1, M7, newSize, newSize);
+        matrixSub(C11, result2, M5, newSize, newSize);
+
+        // C12 = M3 + M5;
+        matrixAdd(C12, M3, M5, newSize, newSize);
+
+        // C21 = M2 + M4;
+        matrixAdd(C21, M2, M4, newSize, newSize);
+
+        // C22 = M1 - M2 + M3 + M6;
+        matrixAdd(result1, M1, M3, newSize, newSize);
+        matrixAdd(result2, result1, M6, newSize, newSize);
+        matrixSub(C22, result2, M2, newSize, newSize);
+
+        //---------------------- Addition of the result in the final matrix ------------------------//
+
+        for (int i = 0; i < newSize; i++) {
+            for (int j = 0; j < newSize; j++) {
+                S[i * sizeUp + j]                               = C11[i * newSize + j]; // S11
+                S[i * sizeUp + newSize + j]                     = C12[i * newSize + j]; // S12
+                S[i * sizeUp + newSize * sizeUp + j]            = C21[i * newSize + j]; // S21
+                S[i * sizeUp + newSize * sizeUp + newSize + j]  = C22[i * newSize + j]; // S22
+            }
+        }
+    }
 }
 
 /**
- * @role Solves a system of linear equations Ax=b for a double-precision matrix A (size n x n).
-         Uses iterative ascension algorithm.
-         After the procedure, x contains the solution of Ax=b.
-         We assume that x has been allocated outside the function.
+ * @role Solves a system of linear equations Ax=b for a double-precision matrix A (size n x n) calculating
+         the bj terms as a function of the values above (A [j * n + i]) of the pivots (A [i * n + i]).
+         **Warning**, in this method the terms of the matrix A, are not modified, because useless for the function.
  * @param x : the solution Ax=b.
  * @param A : the matrix of size n x n.
  * @param b : the double value.
  * @param n : the length of the matrix.
  */
 void SolveTriangularSystemUP (double *x, double *A, double *b, uint64_t n) {
+    double value;
+    // we start with the last pivot (A[(n-1) * n + (n-1)]) and go up...
+    for(int i = n - 1 ; i >= 0 ; i--) {
+         x[i] = b[i] / A[i * n + i]; // Look for the result of the only variable in the last row of A, such that t = ...
 
-    /* Votre code ici */
+         for (int j = i - 1; j >= 0; j--) {
+             value = x[i] * A[j * n + i]; // ... then we replace (here t) by its value found previously, on the column ...
+             b[j] -= value; // ... and we move this value on the side of b to leave only the variables in the A matrix.
+         }
+   }
 }
 
-/* 
-    Performs Gauss elimination for given a matrix A (size n x n) and a vector b (size n).
+/**
+ *   Performs Gauss elimination for given a matrix A (size n x n) and a vector b (size n).
     Modifies directly matrix A and vector b.
-    In the end of the procedure, A is upper truangular and b is modified accordingly.
-    Returns a boolean variable: 
-        *  true in case of success and 
-        *  false in case of failure, for example matrix is impossible to triangularize. 
-*/
+    In the end of the procedure, A is upper triangular and b is modified accordingly.
+    Returns a boolean variable:
+        *  true in case of success and
+        *  false in case of failure, for example matrix is impossible to triangularize.
+ * @param A : the matrix A.
+ * @param b : the vector b.
+ * @param n : the length of the matrix A.
+**/
 bool Triangularize (double *A, double *b, uint64_t n) {
     
-    
-
-    for(int cl = 0; cl<n-1; cl++){
-        for(int lgn = cl+1; lgn<n; lgn++){
+    diagZero(A,n);
+    for(int cl = 0; cl<n-1; cl++){// colonnes
+        for(int lgn = cl+1; lgn<n; lgn++){// lignes
+            //if the coef is not null
             if(A[lgn*n+cl] != 0){
-                int x= A[lgn*n+cl]/A[cl];
+                //determine the coef x (exp L2 = L2 - xL1)
+                int x= A[lgn*n+cl]/A[cl*n+cl];
+                //performs the calculation (L2 = L2-xL1) by applying x to each cell of the line
                 for(int w=0;w<n;w++){
-                    A[lgn*n+w]=A[lgn*n+w] - x*A[w];
+                    A[lgn*n+w]=A[lgn*n+w] - x*A[cl*n+w];
                 }
-                b[lgn]-= x*b[lgn];
+                b[lgn] -= x*b[cl];
             }
         }
     }
+    diagZero(A,n);
+    return true;
+}
+/**
+ * Look that there is no 0 on the diagonal.
+ * @param A : the matrix A.
+ * @param n : the lenght of matrix A. 
+**/
+bool diagZero(double *A, uint64_t n){
+    
     for(int i = 0; i < n; ++i){
         if (A[i*n + i] == 0){
             return false;
         }
 	}
-
-    matrixAff(A,n);
     return true;
 }
 
@@ -321,42 +524,20 @@ bool Triangularize (double *A, double *b, uint64_t n) {
     Uses Gauss elimination algorithm based on truangularization and the ascension solving.
     After the procedure, vector x contains the solution to Ax=b.
     We assume that x has been allocated outside the function.
-        Returns a boolean variable: 
-        *  true in case of success and 
+        Returns a boolean variable:
+        *  true in case of success and
         *  false in case of failure, for example matrix is of rank <n .
 */
 bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n) {
-    
-    /* Votre code ici */
 
-    return false;
+   if (Triangularize(A, b, n)) {
+       SolveTriangularSystemUP(x, A, b, n); 
+       return true;
+   }
+
+   return false;
 }
 
-bool TriangularizeLU (double *A, double *L, double *U, uint64_t n) {
-    
-    U = A;
-    setMatrixIdentity(L,n);
-
-    for(int cl = 0; cl<n-1; cl++){
-        for(int lgn = cl+1; lgn<n; lgn++){
-            if(U[lgn*n+cl] != 0){
-                int x= U[lgn*n+cl]/U[cl];
-                for(int w=0;w<n;w++){
-                    U[lgn*n+w]=U[lgn*n+w] - x*U[w];
-                }
-                U[lgn*n+cl]=x;
-            }
-        }
-    }
-    for(int i = 0; i < n; ++i){
-        if (A[i*n + i] == 0){
-            return false;
-        }
-	}
-
-    matrixAff(A,n);
-    return true;
-}
 double * fusionLU (double *L, double *U, uint64_t n){
     double *fus=allocateMatrix(n,n);
     for(int cl = 0; cl<n-1; cl++){
