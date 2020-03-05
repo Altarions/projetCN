@@ -490,7 +490,7 @@ bool Triangularize (double *A, double *b, uint64_t n) {
     for (int cl = 0; cl < n - 1; cl++) {
         for (int lgn = cl + 1; lgn < n; lgn++) {
             // if the coef is not null
-            if (A[lgn * n + cl] != 0) {
+            if (A[cl * n + cl] != 0) {
                 // determine the coef x (exp L2 = L2 - xL1)
                 int x = A[lgn * n + cl] / A[cl * n + cl];
                 // performs the calculation (L2 = L2-xL1) by applying x to each cell of the line
@@ -519,7 +519,7 @@ bool decompLU (double *A, uint64_t n) {
     for (int cl = 0; cl < n - 1; cl++) {
         for (int lgn = cl + 1; lgn < n; lgn++) {
             // if the coef is not null
-            if (A[lgn * n + cl] != 0) {
+            if (A[cl * n + cl] != 0) {
                 // determine the coef x (exp L2 = L2 - xL1)
                  x = A[lgn * n + cl] / A[cl * n + cl];
                 // performs the calculation (L2 = L2-xL1) by applying x to each cell of the line
@@ -530,7 +530,6 @@ bool decompLU (double *A, uint64_t n) {
 
                 A[lgn * n + cl] = x;
             }
-
         }
     }
 

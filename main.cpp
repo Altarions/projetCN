@@ -221,6 +221,10 @@ int main(int argc, char** argv) {
 
 
 //--------------------- Test decompLU -------------------//
+
+    printf("\ndecompLU, for matrixExercieTD4, give :\n");
+    matrixAff(matrixExercieTD4, matrixExercieTD4Size, matrixExercieTD4Size);
+    
     decompLU(matrixExercieTD4, matrixExercieTD4Size);
     matrixAff(matrixExercieTD4, matrixExercieTD4Size, matrixExercieTD4Size);
 
