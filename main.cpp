@@ -228,5 +228,9 @@ int main(int argc, char** argv) {
     decompLU(matrixExercieTD4, matrixExercieTD4Size);
     matrixAff(matrixExercieTD4, matrixExercieTD4Size, matrixExercieTD4Size);
 
+//--------------------- Test det -------------------//
+    printf("\ndeterminant of the matrixExercieTD4 :\n");
+    printf("%f", det(matrixExercieTD4, matrixExercieTD4Size));
+
     return 0;
 }

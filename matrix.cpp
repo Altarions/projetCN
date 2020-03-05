@@ -551,6 +551,21 @@ bool diagZero(double *A, uint64_t n){
     return true;
 }
 
+/**
+ * @role : compute the determinant of a matrix in LU form. Calculation of diagonal coefficients.
+ * @param A : the started matrix of size (n x n).
+ * @param n : the length of the A matrix.
+ * @return the value of the determinant.
+ */
+double det(double *A, uint64_t n) {
+    double resultat = 1;
+
+    for (int i = 0; i < n; i++) {
+        resultat = resultat * A[i*n + i];
+    }
+
+    return resultat;
+}
 /*
     Solves a system of linear equations Ax=b, given a matrix A (size n x n) and vector b(size n).
     Uses Gauss elimination algorithm based on truangularization and the ascension solving.

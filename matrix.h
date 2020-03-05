@@ -129,6 +129,14 @@ bool Triangularize (double *A,  double *b,  uint64_t n);
  */
 bool decompLU(double *A, uint64_t n);
 
+/**
+ * @role : compute the determinant of a matrix in LU form. Calculation of diagonal coefficients.
+ * @param A : the started matrix of size (n x n).
+ * @param n : the length of the A matrix.
+ * @return the value of the determinant.
+ */
+double det(double *A, uint64_t n);
+
 /*
     Solves a system of linear equations Ax=b, given a matrix A (size n x n) and vector b(size n).
     Uses Gauss elimination algorithm based on truangularization and the ascension solving.
