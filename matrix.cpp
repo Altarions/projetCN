@@ -503,9 +503,7 @@ bool Triangularize (double *A, double *b, uint64_t n) {
         }
     }
 
-    diagZero(A,n);
-
-    return true;
+    return diagZero(A,n);
 }
 
 /**
@@ -514,15 +512,16 @@ bool Triangularize (double *A, double *b, uint64_t n) {
  * @param n : the length of the A matrix.
  * @return true if the decomposition of LU is good, and false if not.
  */
-bool decompLU(double *A, uint64_t n) {
-    diagZero(A,n);
+bool decompLU (double *A, uint64_t n) {
+    diagZero(A, n);
+    int x;
 
     for (int cl = 0; cl < n - 1; cl++) {
         for (int lgn = cl + 1; lgn < n; lgn++) {
             // if the coef is not null
             if (A[lgn * n + cl] != 0) {
                 // determine the coef x (exp L2 = L2 - xL1)
-                int x = A[lgn * n + cl] / A[cl * n + cl];
+                 x = A[lgn * n + cl] / A[cl * n + cl];
                 // performs the calculation (L2 = L2-xL1) by applying x to each cell of the line
 
                 for (int w = cl; w < n; w++) {
@@ -535,15 +534,13 @@ bool decompLU(double *A, uint64_t n) {
         }
     }
 
-    diagZero(A,n);
-
-    return true;
+    return diagZero(A, n);
 }
 
 /**
  * Look that there is no 0 on the diagonal.
  * @param A : the matrix A.
- * @param n : the lenght of matrix A. 
+ * @param n : the length of matrix A.
 **/
 bool diagZero(double *A, uint64_t n){
     
