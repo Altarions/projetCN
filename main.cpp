@@ -18,82 +18,124 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-    const uint64_t M1Size = 5, M2Size = 3, MatrixEx3SizeA = 4, MatrixEx3SizeB = 4, M4Size = 1, M5Size = 4, M6Size = 3,  M7Size = 3, matrixExercieTD4Size = 4;
+    const uint64_t M1Size = 5, M2Size = 3, MatrixEx3SizeA = 4, MatrixEx3SizeB = 4, M4Size = 1, M5Size = 4, M6Size = 3,  M7Size = 3, matrixExercieTD4Size = 4, matrixTestProjetASize = 4, matrixTestProjetBSize = 4;
 
-     double M1[] = {
-            1,  2,  3,  4,  5,
-            6,  7,  8,  9,  10,
-            11, 12, 13, 14, 15,
-            16, 17, 18, 19, 20,
-            21, 22, 23, 24, 25
+    double M1[] = {
+        1,  2,  3,  4,  5,
+        6,  7,  8,  9,  10,
+        11, 12, 13, 14, 15,
+        16, 17, 18, 19, 20,
+        21, 22, 23, 24, 25
     };
 
-     double M2[] = {
-            1.66, 2,    3,
-            4,    5.0,  6,
-            7,    8,    9.45
+    double M2[] = {
+        1.66, 2,    3,
+        4,    5.0,  6,
+        7,    8,    9.45
     };
 
-     double MatrixEx3A[] = {
-            2,  1,  1, -3,
-            6,  2,  5, -8,
-            4,  3,  3, -9,
-           -2, -2, -5,  10
+    double MatrixEx3A[] = {
+        2,  1,  1, -3,
+        6,  2,  5, -8,
+        4,  3,  3, -9,
+        -2, -2, -5,  10
     };
 
 
-     double MatrixEx3B[] = {
-            2, 3,  1,  5,
-            6, 13, 5,  19,
-            2, 19, 10, 23,
-            4, 10, 11, 31
+    double MatrixEx3B[] = {
+        2, 3,  1,  5,
+        6, 13, 5,  19,
+        2, 19, 10, 23,
+        4, 10, 11, 31
     };
 
-     double M4[] = {3};
+    double M4[] = {3};
 
-     double M5[] = {
-           10, 3, 8, 7,
-           0,  5, 3, 5,
-           0,  0, 2, 3,
-           0,  0, 0, 6
+    double M5[] = {
+        10, 3, 8, 7,
+        0,  5, 3, 5,
+        0,  0, 2, 3,
+        0,  0, 0, 6
     };
 
-     double M6[] = {
+    double M6[] = {
         1,  1,  2,
         0, -3, -2,
         0,  0, -2
     };
 
-     double M7[] = {
-            2, 4,  2, 
-            6, 13, 5,  
-            2, 10, 3, 
+    double M7[] = {
+        2, 4,  2, 
+        6, 13, 5,  
+        2, 10, 3, 
     };
 
     double matrixExercieTD4[] = {
-            2, 3, 1, 5,
-            6, 13, 5, 19,
-            2, 19, 10, 23,
-            4, 10, 11, 31
+        2, 3, 1, 5,
+        6, 13, 5, 19,
+        2, 19, 10, 23,
+        4, 10, 11, 31
     };
 
-     double b1[] = {
-           3,
-           2,
-           3,
-           3
+    double matrixTestProjetA[] = {
+        10, 7, 8, 7,
+        7, 5, 6, 5,
+        8, 6, 10, 9,
+        7, 5, 9, 10
     };
 
-     double b2[] = {
-            -1,
-            -2,
-             4
+    double matrixTestProjetB[] = {
+        1, 7, 2, 1,
+        7, 5, 1, 5,
+        8, 6, 10, 9,
+        7, 5, 9, 1
+    };
+
+    double testProjetB1[] = {
+        32,
+        23,
+        33,
+        31
+    };
+
+    double testProjetB2[] = {
+        32.1,
+        22.9,
+        33.1,
+        30.9
+    };
+
+    double testProjetD1[] = {
+        11,
+        18,
+        33,
+        22
+    };
+
+    double testProjetD2[] = {
+        11.1,
+        17.9,
+        33.1,
+        21.9
+    };
+
+    double b1[] = {
+        3,
+        2,
+        3,
+        3
+    };
+
+    double b2[] = {
+        -1,
+        -2,
+        4
     };
 
      double b3[] = {
-            -1,
-            -4,
-            -2
+        -1,
+        -4,
+        -2
     };
 
     double bExercice3A[] = {
@@ -227,6 +269,9 @@ int main(int argc, char** argv) {
     
     decompLU(matrixExercieTD4, matrixExercieTD4Size);
     matrixAff(matrixExercieTD4, matrixExercieTD4Size, matrixExercieTD4Size);
+
+    decompLU(matrixTestProjetA, matrixTestProjetASize);
+    decompLU(matrixTestProjetB, matrixTestProjetBSize);
 
 //--------------------- Test det -------------------//
     printf("\ndeterminant of the matrixExercieTD4 :\n");
