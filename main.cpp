@@ -132,30 +132,30 @@ int main(int argc, char** argv) {
         4
     };
 
-     double b3[] = {
+    double b3[] = {
         -1,
         -4,
         -2
     };
 
     double bExercice3A[] = {
-         7,
-         29,
-         17,
+        7,
+        29,
+        17,
         -23
     };
 
     double bExercice3B[] = {
-           1,
-           3,
-           3,
-           4
+        1,
+        3,
+        3,
+        4
     };
 
-    double *T = allocateMatrix(0, 0), *S = allocateMatrix(0, 0); // final matrix.
+    double T[] = {}, S[] = {}; // final matrix.
 
 //--------------------- Test matrixMultiplyStrassen and NaiveMultiply-------------------//
-    //--------------- Matrix of size 5 x 5 -------------//
+   /* //--------------- Matrix of size 5 x 5 -------------//
 
     printf("\nStrassen multiplication gives for M1 (5 x 5) :\n");
     T = matrixMultiplyStrassen(S, M1, M1, M1Size);
@@ -227,7 +227,7 @@ int main(int argc, char** argv) {
     SolveTriangularSystemUP(S, M6, b2, M6Size);
     matrixAff(S, 3, 1); // result : 1 2 -2
 
-
+    
 //--------------------- Test Triangularize -------------------//
     //--------------- Matrix of size 3 x 3 -------------//
 
@@ -276,6 +276,20 @@ int main(int argc, char** argv) {
 //--------------------- Test det -------------------//
     printf("\ndeterminant of the matrixExercieTD4 :\n");
     printf("%f", det(matrixExercieTD4, matrixExercieTD4Size));
+    */
 
+//--------------------- Test SolveSystemLU -------------------//
+    double x[] = {};
+    SolveSystemLU(x,matrixTestProjetA,testProjetB1,4);
+    matrixAff(x,4,1);
+
+    SolveSystemLU(x,matrixTestProjetA,testProjetB2,4);
+    matrixAff(x,4,1);
+
+    SolveSystemLU(x,matrixTestProjetB,testProjetD1,4);
+    matrixAff(x,4,1);
+
+    SolveSystemLU(x,matrixTestProjetB,testProjetD2,4);
+    matrixAff(x,4,1);
     return 0;
 }

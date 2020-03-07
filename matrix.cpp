@@ -459,17 +459,40 @@ void matrixMultiplyStrassen_rec (double *S, double *A, double *B, uint64_t size,
  * @param A : the matrix of size n x n.
  * @param b : the double value.
  * @param n : the length of the matrix.
- */
+**/
 void SolveTriangularSystemUP (double *x, double *A, double *b, uint64_t n) {
     double value;
     // we start with the last pivot (A[(n-1) * n + (n-1)]) and go up...
     for(int i = n - 1 ; i >= 0 ; i--) {
-         x[i] = b[i] / A[i * n + i]; // Look for the result of the only variable in the last row of A, such that t = ...
+        x[i] = b[i] / A[i * n + i]; // Look for the result of the only variable in the last row of A, such that t = ...
 
-         for (int j = i - 1; j >= 0; j--) {
-             value = x[i] * A[j * n + i]; // ... then we replace (here t) by its value found previously, on the column ...
-             b[j] -= value; // ... and we move this value on the side of b to leave only the variables in the A matrix.
-         }
+        for (int j = i - 1; j >= 0; j--) {
+            value = x[i] * A[j * n + i]; // ... then we replace (here t) by its value found previously, on the column ...
+            b[j] -= value; // ... and we move this value on the side of b to leave only the variables in the A matrix.
+        }
+   }
+}
+
+/**
+ * @role: Solves a system of linear equations Ay=b for a double-precision matrix A (size n x n).
+        Uses iterative ascension algorithm.
+        After the procedure, y contains the solution of Ay=b.
+        We assume that y has been allocated outside the function.
+ * @param y : the solution Axy=b.
+ * @param A : the matrix of size n x n.
+ * @param b : the double value.
+ * @param n : the length of the matrix.
+ */
+void SolveTriangularSystemDown (double *y, double *A, double *b, uint64_t n) {
+    double value;
+    y[0] = b[0];
+
+    for(int i = 1 ; i <= n ; i++) {
+        value = b[i];
+        for (int j = 0; j <= i; j++) {
+            value -= A[i*n+j]*y[j];
+        }
+        y[i] = value;
    }
 }
 
@@ -584,4 +607,20 @@ bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n) {
    }
 
    return false;
+}
+
+/*
+    Solves a system of linear equations Ax=b, given a matrix A (size n x n) = L*U and vector b(size n).
+    Uses descent algorithm.
+    After the procedure, vector x contains the solution to Ax=b.
+    We assume that x has been allocated outside the function.
+*/
+    
+bool SolveSystemLU (double *x, double *A, double *b, uint64_t n){
+    double y[n];
+    decompLU(A,n);
+    SolveTriangularSystemDown(y,A,b,n);
+    SolveTriangularSystemUP(x,A,y,n);
+    return true;
+
 }
