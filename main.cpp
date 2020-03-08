@@ -91,34 +91,6 @@ int main(int argc, char** argv) {
         7, 5, 9, 1
     };
 
-    double testProjetB1[] = {
-        32,
-        23,
-        33,
-        31
-    };
-
-    double testProjetB2[] = {
-        32.1,
-        22.9,
-        33.1,
-        30.9
-    };
-
-    double testProjetD1[] = {
-        11,
-        18,
-        33,
-        22
-    };
-
-    double testProjetD2[] = {
-        11.1,
-        17.9,
-        33.1,
-        21.9
-    };
-
     double b1[] = {
         3,
         2,
@@ -152,10 +124,39 @@ int main(int argc, char** argv) {
         4
     };
 
-    double T[] = {}, S[] = {}; // final matrix.
+    double bProjetB1[] = {
+            32,
+            23,
+            33,
+            31
+    };
 
-//--------------------- Test matrixMultiplyStrassen and NaiveMultiply-------------------//
-   /* //--------------- Matrix of size 5 x 5 -------------//
+    double bProjetB2[] = {
+            32.1,
+            22.9,
+            33.1,
+            30.9
+    };
+
+    double bProjetD1[] = {
+            11,
+            18,
+            33,
+            22
+    };
+
+    double bProjetD2[] = {
+            11.1,
+            17.9,
+            33.1,
+            21.9
+    };
+
+
+    double *S = allocateMatrix(0, 0);
+    double *T = allocateMatrix(0, 0);
+//--------------------- Test matrixMultiplyStrassen and NaiveMultiply-------------------//*/
+    //--------------- Matrix of size 5 x 5 -------------//
 
     printf("\nStrassen multiplication gives for M1 (5 x 5) :\n");
     T = matrixMultiplyStrassen(S, M1, M1, M1Size);
@@ -261,35 +262,47 @@ int main(int argc, char** argv) {
     SolveSystemGauss(S, MatrixEx3B, bExercice3B, MatrixEx3SizeB);
     matrixAff(S, 4, 1); // result : 7  -1  10  -4
 
-
 //--------------------- Test decompLU -------------------//
-
+    //--------------------- matrixExercieTD4 -------------------//
     printf("\ndecompLU, for matrixExercieTD4, give :\n");
     matrixAff(matrixExercieTD4, matrixExercieTD4Size, matrixExercieTD4Size);
     
     decompLU(matrixExercieTD4, matrixExercieTD4Size);
     matrixAff(matrixExercieTD4, matrixExercieTD4Size, matrixExercieTD4Size);
 
-    decompLU(matrixTestProjetA, matrixTestProjetASize);
-    decompLU(matrixTestProjetB, matrixTestProjetBSize);
-
 //--------------------- Test det -------------------//
     printf("\ndeterminant of the matrixExercieTD4 :\n");
-    printf("%f", det(matrixExercieTD4, matrixExercieTD4Size));
-    */
+    printf("\n%f\n", det(matrixExercieTD4, matrixExercieTD4Size));
+
 
 //--------------------- Test SolveSystemLU -------------------//
-    double x[] = {};
-    SolveSystemLU(x,matrixTestProjetA,testProjetB1,4);
+    double *x = allocateMatrix(0, 0);
+
+    double *U = allocateMatrix(matrixTestProjetASize, matrixTestProjetASize);
+    copyMatrix(matrixTestProjetA, U, matrixTestProjetASize, matrixTestProjetASize, matrixTestProjetASize, matrixTestProjetASize);
+
+    double *V = allocateMatrix(matrixTestProjetBSize, matrixTestProjetBSize);
+    copyMatrix(matrixTestProjetB, V, matrixTestProjetBSize, matrixTestProjetBSize, matrixTestProjetBSize, matrixTestProjetBSize);
+
+
+    //--------------- matrix A -------------//
+    printf("\nSolveSystemLU for the matrix A and the vector b1 :\n");
+    SolveSystemLU(x, matrixTestProjetA, bProjetB1, matrixTestProjetASize);
     matrixAff(x,4,1);
 
-    SolveSystemLU(x,matrixTestProjetA,testProjetB2,4);
+    printf("\nSolveSystemLU for of the matrix A and the vector b2 :\n");
+    SolveSystemLU(x, U, bProjetB2, matrixTestProjetASize);
     matrixAff(x,4,1);
 
-    SolveSystemLU(x,matrixTestProjetB,testProjetD1,4);
+
+    //--------------- matrix B -------------//
+    printf("\nSolveSystemLU for the matrix B and the vector d1 :\n");
+    SolveSystemLU(x, matrixTestProjetB, bProjetD1, matrixTestProjetBSize);
     matrixAff(x,4,1);
 
-    SolveSystemLU(x,matrixTestProjetB,testProjetD2,4);
+    printf("\nSolveSystemLU for the matrix B and the vector d2 :\n");
+    SolveSystemLU(x, V, bProjetD2,matrixTestProjetBSize);
     matrixAff(x,4,1);
+
     return 0;
 }
