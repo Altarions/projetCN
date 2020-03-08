@@ -619,6 +619,7 @@ bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n) {
 bool SolveSystemLU (double *x, double *A, double *b, uint64_t n){
     double y[n];
     decompLU(A,n);
+    matrixAff(A,n,n);
     SolveTriangularSystemDown(y,A,b,n);
     SolveTriangularSystemUP(x,A,y,n);
     return true;
