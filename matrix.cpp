@@ -470,7 +470,7 @@ void SolveTriangularSystemUP (double *x, double *A, double *b, uint64_t n) {
             value = x[i] * A[j * n + i]; // ... then we replace (here t) by its value found previously, on the column ...
             b[j] -= value; // ... and we move this value on the side of b to leave only the variables in the A matrix.
         }
-   }
+    }
 }
 
 /**
@@ -537,7 +537,7 @@ bool Triangularize (double *A, double *b, uint64_t n) {
  */
 bool decompLU (double *A, uint64_t n) {
     diagZero(A, n);
-    int x;
+    double x;
 
     for (int cl = 0; cl < n - 1; cl++) {
         for (int lgn = cl + 1; lgn < n; lgn++) {
@@ -566,8 +566,8 @@ bool decompLU (double *A, uint64_t n) {
 **/
 bool diagZero(double *A, uint64_t n){
     
-    for(int i = 0; i < n; ++i){
-        if (A[i*n + i] == 0){
+    for (int i = 0; i < n; ++i) {
+        if (A[i*n + i] == 0) {
             return false;
         }
 	}
@@ -591,7 +591,7 @@ double det(double *A, uint64_t n) {
 }
 /*
     Solves a system of linear equations Ax=b, given a matrix A (size n x n) and vector b(size n).
-    Uses Gauss elimination algorithm based on truangularization and the ascension solving.
+    Uses Gauss elimination algorithm based on triangularization and the ascension solving.
     After the procedure, vector x contains the solution to Ax=b.
     We assume that x has been allocated outside the function.
         Returns a boolean variable:
@@ -615,13 +615,12 @@ bool SolveSystemGauss (double *x, double *A, double *b, uint64_t n) {
     After the procedure, vector x contains the solution to Ax=b.
     We assume that x has been allocated outside the function.
 */
-    
 bool SolveSystemLU (double *x, double *A, double *b, uint64_t n){
-    double y[n];
-    decompLU(A,n);
-    matrixAff(A,n,n);
-    SolveTriangularSystemDown(y,A,b,n);
-    SolveTriangularSystemUP(x,A,y,n);
-    return true;
+    double *y = allocateMatrix(4, 1);
 
+    decompLU(A, n);
+    SolveTriangularSystemDown(y, A, b, n);
+    SolveTriangularSystemUP(x, A, y, n);
+
+    return true;
 }

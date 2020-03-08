@@ -91,34 +91,6 @@ int main(int argc, char** argv) {
         7, 5, 9, 1
     };
 
-    double testProjetB1[] = {
-        32,
-        23,
-        33,
-        31
-    };
-
-    double testProjetB2[] = {
-        32.1,
-        22.9,
-        33.1,
-        30.9
-    };
-
-    double testProjetD1[] = {
-        11,
-        18,
-        33,
-        22
-    };
-
-    double testProjetD2[] = {
-        11.1,
-        17.9,
-        33.1,
-        21.9
-    };
-
     double b1[] = {
         3,
         2,
@@ -152,11 +124,40 @@ int main(int argc, char** argv) {
         4
     };
 
-    double S[] = {}, U[] = {}, V[] = {}; // final matrix.
+    double bProjetB1[] = {
+            32,
+            23,
+            33,
+            31
+    };
+
+    double bProjetB2[] = {
+            32.1,
+            22.9,
+            33.1,
+            30.9
+    };
+
+    double bProjetD1[] = {
+            11,
+            18,
+            33,
+            22
+    };
+
+    double bProjetD2[] = {
+            11.1,
+            17.9,
+            33.1,
+            21.9
+    };
+
+
+    double *S = allocateMatrix(0, 0);
     double *T = allocateMatrix(0, 0);
 //--------------------- Test matrixMultiplyStrassen and NaiveMultiply-------------------//*/
     //--------------- Matrix of size 5 x 5 -------------//
-    /*
+
     printf("\nStrassen multiplication gives for M1 (5 x 5) :\n");
     T = matrixMultiplyStrassen(S, M1, M1, M1Size);
     matrixAff(T,5, 5);
@@ -166,8 +167,8 @@ int main(int argc, char** argv) {
     matrixAff(S,5, 5);
 
     cout << "If the results are equals (1/0) : " << equals(S, T, 5, 5) << endl;
-    */
-    
+
+
     //--------------- Matrix of size 4 x 4 MATRICE DE COURS -------------//
 
     printf("\nStrassen multiplication gives for MatrixEx3A (4 x 4) :\n");
@@ -261,9 +262,8 @@ int main(int argc, char** argv) {
     SolveSystemGauss(S, MatrixEx3B, bExercice3B, MatrixEx3SizeB);
     matrixAff(S, 4, 1); // result : 7  -1  10  -4
 
-
 //--------------------- Test decompLU -------------------//
-
+    //--------------------- matrixExercieTD4 -------------------//
     printf("\ndecompLU, for matrixExercieTD4, give :\n");
     matrixAff(matrixExercieTD4, matrixExercieTD4Size, matrixExercieTD4Size);
     
@@ -273,26 +273,36 @@ int main(int argc, char** argv) {
 //--------------------- Test det -------------------//
     printf("\ndeterminant of the matrixExercieTD4 :\n");
     printf("\n%f\n", det(matrixExercieTD4, matrixExercieTD4Size));
-    
+
 
 //--------------------- Test SolveSystemLU -------------------//
-    double x[] = {};
-    printf("\nSolveSystemLU for of the matrix A and the vector b1 :\n");
-    copyMatrix(matrixTestProjetA,U,matrixTestProjetASize,matrixTestProjetASize,matrixTestProjetASize,matrixTestProjetASize);
-    SolveSystemLU(x,U,testProjetB1,matrixTestProjetASize);
+    double *x = allocateMatrix(0, 0);
+
+    double *U = allocateMatrix(matrixTestProjetASize, matrixTestProjetASize);
+    copyMatrix(matrixTestProjetA, U, matrixTestProjetASize, matrixTestProjetASize, matrixTestProjetASize, matrixTestProjetASize);
+
+    double *V = allocateMatrix(matrixTestProjetBSize, matrixTestProjetBSize);
+    copyMatrix(matrixTestProjetB, V, matrixTestProjetBSize, matrixTestProjetBSize, matrixTestProjetBSize, matrixTestProjetBSize);
+
+
+    //--------------- matrix A -------------//
+    printf("\nSolveSystemLU for the matrix A and the vector b1 :\n");
+    SolveSystemLU(x, matrixTestProjetA, bProjetB1, matrixTestProjetASize);
     matrixAff(x,4,1);
 
     printf("\nSolveSystemLU for of the matrix A and the vector b2 :\n");
-    SolveSystemLU(x,matrixTestProjetA,testProjetB2,matrixTestProjetASize);
+    SolveSystemLU(x, U, bProjetB2, matrixTestProjetASize);
     matrixAff(x,4,1);
 
-    printf("\nSolveSystemLU for of the matrix B and the vector d1 :\n");
-    copyMatrix(matrixTestProjetB,V,matrixTestProjetBSize,matrixTestProjetBSize,matrixTestProjetBSize,matrixTestProjetBSize);
-    SolveSystemLU(x,V,testProjetD1,matrixTestProjetBSize);
+
+    //--------------- matrix B -------------//
+    printf("\nSolveSystemLU for the matrix B and the vector d1 :\n");
+    SolveSystemLU(x, matrixTestProjetB, bProjetD1, matrixTestProjetBSize);
     matrixAff(x,4,1);
 
-    printf("\nSolveSystemLU for of the matrix B and the vector d2 :\n");
-    SolveSystemLU(x,matrixTestProjetB,testProjetD2,matrixTestProjetBSize);
+    printf("\nSolveSystemLU for the matrix B and the vector d2 :\n");
+    SolveSystemLU(x, V, bProjetD2,matrixTestProjetBSize);
     matrixAff(x,4,1);
+
     return 0;
 }
